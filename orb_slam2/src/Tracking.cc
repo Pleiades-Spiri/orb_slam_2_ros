@@ -462,12 +462,20 @@ void Tracking::Track()
                     mCurrentFrame.mvpMapPoints[i]=static_cast<MapPoint*>(NULL);
             }
         }
+        /////
+        //safy Edit
+        //Print out the number of KeyFramesInMap 
+        ////
+
 
         // Reset if the camera get lost soon after initialization
         if(mState==LOST)
         {
             if(mpMap->KeyFramesInMap()<=mnMinimumKeyFrames)
             {
+                cout << mpMap->KeyFramesInMap() << endl;
+                cout << mnMinimumKeyFrames << endl;
+                
                 cout << "Track lost soon after initialisation, reseting..." << endl;
                 mpSystem->Reset();
                 return;
