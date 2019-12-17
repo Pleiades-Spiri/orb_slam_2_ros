@@ -20,13 +20,13 @@ Camera.height: 1080
 Camera.fps: 30.0
 
 # stereo baseline (distance between cameras in m?) times fx
-Camera.bf: 57.6 # 40
+Camera.bf: 74.329661322 # 40
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
 
 # Close/Far threshold. Baseline times.
-ThDepth: 30 # what is this?
+ThDepth: 100 # what is this?
 
 # seen elsewhere... what is this?
 #DepthMapFactor: 1000.0
@@ -41,7 +41,7 @@ LEFT.D: !!opencv-matrix
    rows: 1
    cols: 5
    dt: d
-   data: [0.0, 0.0, 0.0, 0.0, 0.0]
+   data: [-0.386216, 0.140383, 0.004409, -0.002219, 0.000000]
 LEFT.K: !!opencv-matrix
    rows: 3
    cols: 3
