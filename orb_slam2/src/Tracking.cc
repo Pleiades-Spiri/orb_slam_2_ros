@@ -261,6 +261,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
 
 void Tracking::Track()
 {
+    std::cout<<"DEBUG ln 264 Tracking.cc Tracking....."<<std::endl;
     if(mState==NO_IMAGES_YET)
     {
         mState = NOT_INITIALIZED;
@@ -270,7 +271,7 @@ void Tracking::Track()
 
     // Get Map Mutex -> Map cannot be changed
     unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
-
+    
     if(mState==NOT_INITIALIZED)
     {
         if(mSensor==System::STEREO || mSensor==System::RGBD)
@@ -293,11 +294,13 @@ void Tracking::Track()
         {
             // Local Mapping is activated. This is the normal behaviour, unless
             // you explicitly activate the "only tracking" mode.
-
+            std::cout<<"DEBUG ln 297 Tracking.cc Tracking with mapping system state = ";
+            std::cout<<mState<<std::endl;
             if(mState==OK)
             {
                 // Local Mapping might have changed some MapPoints tracked in last frame
                 CheckReplacedInLastFrame();
+                std::cout<<"DEBUG ln 302 Tracking.cc mState==OK"<<std::endl;
 
                 if(mVelocity.empty() || mCurrentFrame.mnId<mnLastRelocFrameId+2)
                 {
@@ -306,12 +309,15 @@ void Tracking::Track()
                 else
                 {
                     bOK = TrackWithMotionModel();
+                    std::cout<<"DEBUG ln 309 Tracking.cc bOK tracking with motion model = ";
+                    std::cout<<bOK<<std::endl;  
                     if(!bOK)
                         bOK = TrackReferenceKeyFrame();
                 }
             }
             else
             {
+                std::cout<<"DEBUG ln 319 TRacking.cc Relocalization"<<std::endl;
                 bOK = Relocalization();
             }
         }
@@ -1508,8 +1514,7 @@ bool Tracking::Relocalization()
 void Tracking::Reset()
 {
 
-    cout << "System Reseting" << endl;
-
+    cout << "System Reseting Now" << endl;
     // Reset Local Mapping
     cout << "Reseting Local Mapper...";
     mpLocalMapper->RequestReset();

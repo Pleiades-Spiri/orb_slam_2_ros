@@ -21,7 +21,8 @@
 class StereoNode : public Node
 {
   public:
-    StereoNode (const ORB_SLAM2::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport);
+    cv::Mat M1l_,M2l_,M1r_,M2r_;
+    StereoNode (const ORB_SLAM2::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport,cv::Mat M1l_,cv::Mat M2l_,cv::Mat M1r_,cv::Mat M2r_);
     ~StereoNode ();
     void ImageCallback (const sensor_msgs::ImageConstPtr& msgLeft,const sensor_msgs::ImageConstPtr& msgRight);
 

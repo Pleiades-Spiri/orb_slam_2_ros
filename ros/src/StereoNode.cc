@@ -16,8 +16,43 @@ int main(int argc, char **argv)
     ros::NodeHandle node_handle;
     image_transport::ImageTransport image_transport (node_handle);
 
+    cv::FileStorage fsSettings(argv[1], cv::FileStorage::READ);
+    if(!fsSettings.isOpened())
+        {
+            cerr << "ERROR: Wrong path to settings" << endl;
+            return -1;
+        }
+
+    cv::Mat K_l, K_r, P_l, P_r, R_l, R_r, D_l, D_r;
+    cv::Mat M1l,M2l,M1r,M2r;
+
+    fsSettings["LEFT.K"] >> K_l;
+    fsSettings["RIGHT.K"] >> K_r;
+
+    fsSettings["LEFT.P"] >> P_l;
+    fsSettings["RIGHT.P"] >> P_r;
+
+    fsSettings["LEFT.R"] >> R_l;
+    fsSettings["RIGHT.R"] >> R_r;
+
+    fsSettings["LEFT.D"] >> D_l;
+    fsSettings["RIGHT.D"] >> D_r;
+
+    int rows_l = fsSettings["LEFT.height"];
+    int cols_l = fsSettings["LEFT.width"];
+    int rows_r = fsSettings["RIGHT.height"];
+    int cols_r = fsSettings["RIGHT.width"];
+
+    if(K_l.empty() || K_r.empty() || P_l.empty() || P_r.empty() || R_l.empty() || R_r.empty() || D_l.empty() || D_r.empty() || rows_l==0 || rows_r==0 || cols_l==0 || cols_r==0)
+        {
+            cerr << "ERROR: Calibration parameters to rectify stereo are missing!" << endl;
+            return -1;
+        }
+
+    cv::initUndistortRectifyMap(K_l,D_l,R_l,P_l.rowRange(0,3).colRange(0,3),cv::Size(cols_l,rows_l),CV_32F,M1l,M2l);
+    cv::initUndistortRectifyMap(K_r,D_r,R_r,P_r.rowRange(0,3).colRange(0,3),cv::Size(cols_r,rows_r),CV_32F,M1r,M2r);
     // initilaize
-    StereoNode node (ORB_SLAM2::System::STEREO, node_handle, image_transport);
+    StereoNode node (ORB_SLAM2::System::STEREO, node_handle, image_transport,M1l,M2l,M1r,M2r);
 
     ros::spin();
 
@@ -25,7 +60,13 @@ int main(int argc, char **argv)
 }
 
 
-StereoNode::StereoNode (const ORB_SLAM2::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport) : Node (sensor, node_handle, image_transport) {
+StereoNode::StereoNode (const ORB_SLAM2::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport, cv::Mat M1l, cv::Mat M2l, cv::Mat M1r, cv::Mat M2r) : Node (sensor, node_handle, image_transport) {
+    
+    M1l_ = M1l;
+    M2l_ = M2l;
+    M1r_ = M1r;
+    M2r_ = M2r;
+
     left_sub_ = new message_filters::Subscriber<sensor_msgs::Image> (node_handle, "image_left/image_color_rect", 1);
     right_sub_ = new message_filters::Subscriber<sensor_msgs::Image> (node_handle, "image_right/image_color_rect", 1);
 
@@ -57,10 +98,12 @@ void StereoNode::ImageCallback (const sensor_msgs::ImageConstPtr& msgLeft, const
       ROS_ERROR("cv_bridge exception: %s", e.what());
       return;
   }
-
-  current_frame_time_ = msgLeft->header.stamp;
-
-  orb_slam_->TrackStereo(cv_ptrLeft->image,cv_ptrRight->image,cv_ptrLeft->header.stamp.toSec());
-
+  cv::Mat imLeft, imRight;
+  cv::remap(cv_ptrLeft->image,imLeft,this->M1l_,this->M2l_,cv::INTER_LINEAR);
+  cv::remap(cv_ptrRight->image,imRight,this->M1r_,this->M2r_,cv::INTER_LINEAR);
+  std::cout<<"remapping"<<std::endl;
+  std::cout<<msgLeft->header.stamp.toNSec()<<std::endl;
+  orb_slam_->TrackStereo(imLeft,imRight,msgLeft->header.stamp.toNSec());
+  std::cout<<orb_slam_->GetCurrentPosition()<<std::endl;
   Update ();
 }

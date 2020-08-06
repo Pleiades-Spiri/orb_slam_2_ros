@@ -1,10 +1,10 @@
 <launch>
   <arg name="block_remap_mavros" default="false" />
-  <node name="orb_slam2_stereo" pkg="orb_slam2_ros" type="orb_slam2_ros_stereo" output="screen">
+  <node name="orb_slam2_stereo" pkg="orb_slam2_ros" type="orb_slam2_ros_stereo" args="$(find orb_slam2_ros)/orb_slam2/config/Spiri_lowRes_Stereo.yaml" output="screen">
 
-       <remap from="image_left/image_color_rect" to="/stereo/left/image_rect_color" />
-       <remap from="image_right/image_color_rect" to="/stereo/right/image_rect_color" />
-       <remap from="/orb_slam2_stereo/pose" to="/mavros/vision_pose/pose"  unless="$(arg block_remap_mavros)"/>
+       <remap from="image_left/image_color_rect" to="/stereo/left/image_raw" />
+       <remap from="image_right/image_color_rect" to="/stereo/right/image_raw" />
+       <!--<remap from="/orb_slam2_stereo/pose" to="/mavros/vision_pose/pose"  unless="$(arg block_remap_mavros)"/>-->
        
        
        <param name="publish_pointcloud" type="bool" value="true" />
@@ -22,4 +22,6 @@
        <param name="camera_frame_id" type="string" value="camera_link" />
        <param name="min_num_kf_in_map" type="int" value="5" />
   </node>
+  <node name="vision_odom_transformer" pkg="topic_tools" type="transform" output="screen" args="/orb_slam2_stereo/pose /mavros/vision_pose/pose geometry_msgs/PoseStamped 'geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp,frame_id=&quot;local_origin&quot;),pose=m.pose)' --import geometry_msgs std_msgs" />
+  <node pkg="tf" type="static_transform_publisher" name="world_to_local_origin" args="0 0 0 0 0 0 world local_origin 10" />
 </launch>

@@ -2,31 +2,31 @@
 
 # Camera calibration and distortion parameters (OpenCV)
 
-Camera.fx: 225.48436
-Camera.fy: 299.70005
-Camera.cx: 164.71275
-Camera.cy: 118.01326
+Camera.fx: 220.884778
+Camera.fy: 295.457642
+Camera.cx: 159.726273
+Camera.cy: 121.808433
 
-Camera.k1: -0.404573 
-Camera.k2: 0.163958 
-Camera.p1: 0.001334 
-Camera.p2: -0.005042
+Camera.k1: -0.375914
+Camera.k2: 0.134244
+Camera.p1: 0.002453
+Camera.p2: 0.003180
 Camera.k3: 0.0
 
 Camera.width: 320
 Camera.height: 240
 
 # Camera frames per second
-Camera.fps: 30.0
+Camera.fps: 10.0
 
 # stereo baseline (distance between cameras in m?) times fx
-Camera.bf: 12.85260 # 40
+Camera.bf: 11.7068 # 40
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
 
 # Close/Far threshold. Baseline times.
-ThDepth: 100 # what is this?
+ThDepth: 35 # what is this?
 
 # seen elsewhere... what is this?
 #DepthMapFactor: 1000.0
@@ -41,28 +41,25 @@ LEFT.D: !!opencv-matrix
    rows: 1
    cols: 5
    dt: d
-   data: [-0.404573, 0.163958, 0.001334, -0.005042, 0.000000]
+   data: [-0.375914, 0.134244, 0.002453, 0.003180, 0.000000]
 LEFT.K: !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
-   data: [ 225.48436,    0.     ,  164.71275,
-            0.     ,  299.70005,  118.01326,
-            0.     ,    0.     ,    1.     ]
+   data: [220.884778, 0.000000, 159.726273, 0.000000, 295.457642, 121.808433, 0.000000, 0.000000, 1.000000]
+
 LEFT.R:  !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
-   data: [ 0.95911429, -0.04577467, -0.27929279,
-          0.04325362,  0.9989487 , -0.01518615,
-          0.27969431,  0.00248483,  0.96008589]
+   data: [0.998000, 0.037004, 0.051257, -0.037531, 0.999252, 0.009355, -0.050873, -0.011260, 0.998642]
+
 LEFT.P:  !!opencv-matrix
    rows: 3
    cols: 4
    dt: d
-   data: [ 305.6735 ,    0.     ,  289.60029,    0.     ,
-            0.     ,  305.6735 ,  121.06541,    0.     ,
-            0.     ,    0.     ,    1.     ,    0.     ]
+   data: [299.438167, 0.000000, 141.389769, 0.000000, 0.000000, 299.438167, 127.613862, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000]
+
 
 RIGHT.height: 320
 RIGHT.width: 240
@@ -70,35 +67,32 @@ RIGHT.D: !!opencv-matrix
    rows: 1
    cols: 5
    dt: d
-   data: [-0.399746, 0.164662, -0.001467, 0.001856, 0.000000]
+   data: [-0.374221, 0.133071, -0.006860, 0.003431, 0.000000]
 RIGHT.K: !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
-   data: [ 227.8688 ,    0.     ,  157.95209,
-            0.     ,  303.09539,  118.1566 ,
-            0.     ,    0.     ,    1.     ]
+   data: [219.467843, 0.000000, 159.261041, 0.000000, 293.389294, 133.363559, 0.000000, 0.000000, 1.000000]
+
 RIGHT.R:  !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
-   data: [ 0.97349106, -0.02827958, -0.2269701 ,
-          0.03031821,  0.99952516,  0.00550008,
-          0.22670678, -0.01223561,  0.9738862 ]
+   data: [0.999096, 0.013685, 0.040260, -0.013269, 0.999856, -0.010582, -0.040399, 0.010038, 0.999133]
+
 RIGHT.P:  !!opencv-matrix
    rows: 3
    cols: 4
    dt: d
-   data: [ 305.6735 ,    0.     ,  289.60029,  -14.70807,
-            0.     ,  305.6735 ,  121.06541,    0.     ,
-            0.     ,    0.     ,    1.     ,    0.     ]
+   data: [299.438167, 0.000000, 141.389769, -16.539961, 0.000000, 299.438167, 127.613862, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000]
+
 
 #--------------------------------------------------------------------------------------------
 # ORB Parameters
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 2400
+ORBextractor.nFeatures: 1200
 
 # ORB Extractor: Scale factor between levels in the scale pyramid
 ORBextractor.scaleFactor: 1.2
