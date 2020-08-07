@@ -112,6 +112,12 @@ public:
 
     void Reset();
 
+    // Adding Last known position so when map is reset it starts from 
+    bool TrackerHasPose;
+    cv::Mat LastKnownPose;
+    bool SetTrackerLastKnownPose (cv::Mat P);
+    bool SetTrackerHasPose();
+
 protected:
 
     // Main tracking function. It is independent of the input sensor.

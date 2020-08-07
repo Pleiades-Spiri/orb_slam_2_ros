@@ -145,7 +145,9 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
         else
             mDepthMapFactor = 1.0f/mDepthMapFactor;
     }
-
+    //Intializing Tracker has Pose
+    TrackerHasPose=false;
+    LastKnownPose = cv::Mat::eye(4,4,CV_32F);
 }
 
 void Tracking::SetLocalMapper(LocalMapping *pLocalMapper)
@@ -519,8 +521,18 @@ void Tracking::StereoInitialization()
 {
     if(mCurrentFrame.N>500)
     {
+	std::cout<<"DEBUG ln 524 Tracking.cc Tracker Last know pose ";
+	std::cout<<LastKnownPose<<std::endl;
         // Set Frame pose to the origin
-        mCurrentFrame.SetPose(cv::Mat::eye(4,4,CV_32F));
+	if(!TrackerHasPose)
+	{
+		mCurrentFrame.SetPose(cv::Mat::eye(4,4,CV_32F));
+	}
+	else
+	{
+		mCurrentFrame.SetPose(LastKnownPose);
+	}
+
 
         // Create KeyFrame
         KeyFrame* pKFini = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
@@ -1586,6 +1598,18 @@ void Tracking::ChangeCalibration(const string &strSettingPath)
 void Tracking::InformOnlyTracking(const bool &flag)
 {
     mbOnlyTracking = flag;
+}
+
+bool Tracking::SetTrackerLastKnownPose(cv::Mat P)
+{
+    LastKnownPose = P;
+    return true;
+}
+
+bool Tracking::SetTrackerHasPose()
+{
+    TrackerHasPose = true;
+    return true;
 }
 
 

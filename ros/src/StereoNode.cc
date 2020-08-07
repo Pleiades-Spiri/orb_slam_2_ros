@@ -66,6 +66,7 @@ StereoNode::StereoNode (const ORB_SLAM2::System::eSensor sensor, ros::NodeHandle
     M2l_ = M2l;
     M1r_ = M1r;
     M2r_ = M2r;
+    last_confirmed_pose_= cv::Mat::eye(4,4,CV_32F);
 
     left_sub_ = new message_filters::Subscriber<sensor_msgs::Image> (node_handle, "image_left/image_color_rect", 1);
     right_sub_ = new message_filters::Subscriber<sensor_msgs::Image> (node_handle, "image_right/image_color_rect", 1);
@@ -105,5 +106,19 @@ void StereoNode::ImageCallback (const sensor_msgs::ImageConstPtr& msgLeft, const
   std::cout<<msgLeft->header.stamp.toNSec()<<std::endl;
   orb_slam_->TrackStereo(imLeft,imRight,msgLeft->header.stamp.toNSec());
   std::cout<<orb_slam_->GetCurrentPosition()<<std::endl;
+
+  if (orb_slam_->GetCurrentPosition().empty())
+  {
+	std::cout<<"No possition will reset the map"<<std::endl;
+        orb_slam_->Reset();
+        orb_slam_->SetCurrentPosition(this->last_confirmed_pose_);
+	orb_slam_->SetTrackerPosition(this->last_confirmed_pose_);
+	orb_slam_->SetTrackerHasPose();
+
+  }
+  else 
+  {
+	this->last_confirmed_pose_ = orb_slam_->GetCurrentPosition();
+  }
   Update ();
 }

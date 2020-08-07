@@ -118,6 +118,11 @@ public:
     bool SaveMap(const string &filename);
 
     cv::Mat GetCurrentPosition ();
+    // Setting the position of the tracker
+
+	bool SetCurrentPosition(cv::Mat Pose);
+    bool SetTrackerPosition (cv::Mat Pose);
+    bool SetTrackerHasPose ();
 
     // Information from most recent processed frame
     // You can call this right after TrackMonocular (or stereo or RGBD)

@@ -471,6 +471,11 @@ cv::Mat System::GetCurrentPosition () {
   return current_position_;
 }
 
+bool System::SetCurrentPosition(cv::Mat Pose) {
+  current_position_ = Pose;
+  return true;
+}
+
 int System::GetTrackingState()
 {
     unique_lock<mutex> lock(mMutexState);
@@ -648,6 +653,19 @@ bool System::LoadMap(const string &filename) {
 
     SetCallStackSize(kDefaultCallStackSize);
     
+    return true;
+}
+
+//Setting Tracker position 
+bool System::SetTrackerPosition (cv::Mat Pose){
+    
+    mpTracker->SetTrackerLastKnownPose(Pose);
+    return true;
+}
+
+bool System::SetTrackerHasPose(){
+
+    mpTracker->SetTrackerHasPose();
     return true;
 }
 
