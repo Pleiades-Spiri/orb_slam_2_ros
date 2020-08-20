@@ -43,6 +43,7 @@
 
 #include "System.h"
 
+#include <geometry_msgs/Quaternion.h>
 
 
 class Node
@@ -53,6 +54,8 @@ class Node
 
   protected:
     void Update ();
+    cv::Mat TransformFromQuat (geometry_msgs::Quaternion);
+    cv::Mat IMURotation(cv::Mat I, cv::Mat CP);
     ORB_SLAM2::System* orb_slam_;
 
     ros::Time current_frame_time_;
@@ -66,6 +69,7 @@ class Node
     bool SaveMapSrv (orb_slam2_ros::SaveMap::Request &req, orb_slam2_ros::SaveMap::Response &res);
 
     tf::Transform TransformFromMat (cv::Mat position_mat);
+    
     sensor_msgs::PointCloud2 MapPointsToPointCloud (std::vector<ORB_SLAM2::MapPoint*> map_points);
 
     dynamic_reconfigure::Server<orb_slam2_ros::dynamic_reconfigureConfig> dynamic_param_server_;

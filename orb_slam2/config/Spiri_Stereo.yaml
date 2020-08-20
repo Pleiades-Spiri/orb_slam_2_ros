@@ -2,25 +2,25 @@
 
 # Camera calibration and distortion parameters (OpenCV)
 
-Camera.fx: 1304.029146
-Camera.fy: 1300.360939
-Camera.cx: 990.448476
-Camera.cy: 515.968466
+Camera.fx: 901.65045
+Camera.fy: 907.78138
+Camera.cx: 695.89579
+Camera.cy: 359.46417
 
-Camera.k1: -0.386216
-Camera.k2: 0.140383
-Camera.p1: 0.004409
-Camera.p2: -0.002219
+Camera.k1: -0.379567
+Camera.k2:  0.150186
+Camera.p1: 0.005721
+Camera.p2: -0.005452
 Camera.k3: 0.0
 
-Camera.width: 1920
-Camera.height: 1080
+Camera.width: 1280
+Camera.height: 720
 
 # Camera frames per second
 Camera.fps: 30.0
 
 # stereo baseline (distance between cameras in m?) times fx
-Camera.bf: 74.329661322 # 40
+Camera.bf: 47.787 # 40
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
@@ -35,58 +35,70 @@ ThDepth: 100 # what is this?
 # Stereo Rectification. Only if you need to pre-rectify the images.
 # Camera.fx, .fy, etc must be the same as in LEFT.P
 #--------------------------------------------------------------------------------------------
-LEFT.height: 1080
-LEFT.width: 1920
+LEFT.height: 720
+LEFT.width: 1280
 LEFT.D: !!opencv-matrix
    rows: 1
    cols: 5
    dt: d
-   data: [-0.386216, 0.140383, 0.004409, -0.002219, 0.000000]
+   data: [-0.379567, 0.150186, 0.005721, -0.005452, 0.000000]
 LEFT.K: !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
-   data: [1304.029146, 0.000000, 990.448476, 0.000000, 1300.360939, 515.968466, 0.000000, 0.000000, 1.000000]
+   data: [ 901.65045,    0.     ,  695.89579,
+            0.     ,  907.78138,  359.46417,
+            0.     ,    0.     ,    1.     ]
 LEFT.R:  !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
-   data: [0.998360, -0.045357, 0.034935, 0.045312, 0.998971, 0.002076, -0.034993, -0.000489, 0.999387]
+   data: [ 0.99551285,  0.03384525,  0.0883667 ,
+         -0.03399252,  0.99942207,  0.00016189,
+         -0.08831015, -0.00316497,  0.996088  ]
 LEFT.P:  !!opencv-matrix
    rows: 3
    cols: 4
    dt: d
-   data: [1289.951088, 0.000000, 874.958939, 0.000000, 0.000000, 1289.951088, 546.437374, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000]
+   data: [ 877.42844,    0.     ,  562.22726,    0.     ,
+            0.     ,  877.42844,  367.71714,    0.     ,
+            0.     ,    0.     ,    1.     ,    0.     ]
 
-RIGHT.height: 1080
-RIGHT.width: 1920
+RIGHT.height: 720
+RIGHT.width: 1280
 RIGHT.D: !!opencv-matrix
    rows: 1
    cols: 5
    dt: d
-   data: [-0.381942, 0.145040, 0.000536, 0.002452, 0.000000]
+   data: [-0.374960, 0.127904, -0.000372, -0.002388, 0.000000]
 RIGHT.K: !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
-   data: [1308.636060, 0.000000, 915.116840, 0.000000, 1305.769610, 568.569179, 0.000000, 0.000000, 1.000000]
+   data: [ 911.43902,    0.     ,  674.74696,
+            0.     ,  914.29415,  365.37436,
+            0.     ,    0.     ,    1.     ]
 RIGHT.R:  !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
-   data: [0.998404, -0.028197, 0.048937, 0.028260, 0.999600, -0.000592, -0.048900, 0.001974, 0.998802]
+   data: [ 0.99541202,  0.01286463,  0.09481247,
+         -0.01270654,  0.99991669, -0.00227096,
+         -0.09483379,  0.00105581,  0.99549256]
 RIGHT.P:  !!opencv-matrix
    rows: 3
    cols: 4
    dt: d
-   data: [1289.951088, 0.000000, 874.958939, -68.012187, 0.000000, 1289.951088, 546.437374, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000]
+   data: [ 877.42844,    0.     ,  562.22726,  -48.58602,
+            0.     ,  877.42844,  367.71714,    0.     ,
+            0.     ,    0.     ,    1.     ,    0.     ]
 
 #--------------------------------------------------------------------------------------------
 # ORB Parameters
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 2400
+ORBextractor.nFeatures: 1200
 
 # ORB Extractor: Scale factor between levels in the scale pyramid
 ORBextractor.scaleFactor: 1.2
@@ -98,5 +110,5 @@ ORBextractor.nLevels: 8
 # Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
 # Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
 # You can lower these values if your images have low contrast
-ORBextractor.iniThFAST: 10
-ORBextractor.minThFAST: 4
+ORBextractor.iniThFAST: 20
+ORBextractor.minThFAST: 7

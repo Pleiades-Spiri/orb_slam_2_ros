@@ -70,9 +70,10 @@ StereoNode::StereoNode (const ORB_SLAM2::System::eSensor sensor, ros::NodeHandle
 
     left_sub_ = new message_filters::Subscriber<sensor_msgs::Image> (node_handle, "image_left/image_color_rect", 1);
     right_sub_ = new message_filters::Subscriber<sensor_msgs::Image> (node_handle, "image_right/image_color_rect", 1);
+    local_pose_sub_ = new message_filters::Subscriber<geometry_msgs::PoseStamped> (node_handle, "mavros/local_position/pose", 1);
 
-    sync_ = new message_filters::Synchronizer<sync_pol> (sync_pol(10), *left_sub_, *right_sub_);
-    sync_->registerCallback(boost::bind(&StereoNode::ImageCallback, this, _1, _2));
+    sync_ = new message_filters::Synchronizer<sync_pol> (sync_pol(10), *left_sub_, *right_sub_, *local_pose_sub_);
+    sync_->registerCallback(boost::bind(&StereoNode::ImageCallback, this, _1, _2, _3));
 }
 
 
@@ -83,7 +84,7 @@ StereoNode::~StereoNode () {
 }
 
 
-void StereoNode::ImageCallback (const sensor_msgs::ImageConstPtr& msgLeft, const sensor_msgs::ImageConstPtr& msgRight) {
+void StereoNode::ImageCallback (const sensor_msgs::ImageConstPtr& msgLeft, const sensor_msgs::ImageConstPtr& msgRight, const geometry_msgs::PoseStampedConstPtr& msgLoPose) {
   cv_bridge::CvImageConstPtr cv_ptrLeft;
   try {
       cv_ptrLeft = cv_bridge::toCvShare(msgLeft);
@@ -99,26 +100,51 @@ void StereoNode::ImageCallback (const sensor_msgs::ImageConstPtr& msgLeft, const
       ROS_ERROR("cv_bridge exception: %s", e.what());
       return;
   }
+
   cv::Mat imLeft, imRight;
   cv::remap(cv_ptrLeft->image,imLeft,this->M1l_,this->M2l_,cv::INTER_LINEAR);
   cv::remap(cv_ptrRight->image,imRight,this->M1r_,this->M2r_,cv::INTER_LINEAR);
   std::cout<<"remapping"<<std::endl;
   std::cout<<msgLeft->header.stamp.toNSec()<<std::endl;
   orb_slam_->TrackStereo(imLeft,imRight,msgLeft->header.stamp.toNSec());
-  std::cout<<orb_slam_->GetCurrentPosition()<<std::endl;
+
+
+  geometry_msgs::Quaternion LoPoseOrientation;
+  LoPoseOrientation = msgLoPose->pose.orientation;
+  
+
+
+  tf2::Quaternion LoPoseOrientation_tf(LoPoseOrientation.x,LoPoseOrientation.y,LoPoseOrientation.z,LoPoseOrientation.w);
+
+  geometry_msgs::Quaternion LoPoseOrinNorm_msg;
+  LoPoseOrinNorm_msg = tf2::toMsg(LoPoseOrientation_tf.normalize());
+  
+	cv::Mat LoPoseOrinRotaionMatrix; 
+  LoPoseOrinRotaionMatrix = TransformFromQuat(LoPoseOrinNorm_msg).clone();
+  std::cout<<"DEBUG stereonode.cc ln 124 LoPoseOrinRotaionMatrix = ";
+  std::cout<<LoPoseOrinRotaionMatrix<<std::endl;
+  
+
 
   if (orb_slam_->GetCurrentPosition().empty())
   {
-	std::cout<<"No possition will reset the map"<<std::endl;
-        orb_slam_->Reset();
-        orb_slam_->SetCurrentPosition(this->last_confirmed_pose_);
-	orb_slam_->SetTrackerPosition(this->last_confirmed_pose_);
-	orb_slam_->SetTrackerHasPose();
+		std::cout<<"No possition will reset the map"<<std::endl;
+    orb_slam_->Reset();
+    orb_slam_->SetCurrentPosition(this->last_confirmed_pose_);
+		orb_slam_->SetTrackerPosition(this->last_confirmed_pose_);
+		orb_slam_->SetTrackerHasPose();
 
   }
   else 
   {
-	this->last_confirmed_pose_ = orb_slam_->GetCurrentPosition();
+		
+    std::cout<<"DEBUG sterenode.cc ln 139 current Position= ";
+    std::cout<<orb_slam_->GetCurrentPosition()<<std::endl;
+		std::cout<<"DEBUG stereonode.cc ln 142 Integreated pose = ";
+    std::cout<<IMURotation(LoPoseOrinRotaionMatrix,orb_slam_->GetCurrentPosition())<<std::endl;
+		orb_slam_->SetCurrentPosition(IMURotation(LoPoseOrinRotaionMatrix,orb_slam_->GetCurrentPosition()));
+		this->last_confirmed_pose_ = orb_slam_->GetCurrentPosition();
   }
-  Update ();
+  
+	Update ();
 }

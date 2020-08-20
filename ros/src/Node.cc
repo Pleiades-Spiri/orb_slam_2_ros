@@ -79,11 +79,13 @@ void Node::PublishMapPoints (std::vector<ORB_SLAM2::MapPoint*> map_points) {
 void Node::PublishPositionAsTransform (cv::Mat position) {
   tf::Transform transform = TransformFromMat (position);
   static tf::TransformBroadcaster tf_broadcaster;
+  current_frame_time_ = ros::Time::now();
   tf_broadcaster.sendTransform(tf::StampedTransform(transform, current_frame_time_, map_frame_id_param_, camera_frame_id_param_));
 }
 
 void Node::PublishPositionAsPoseStamped (cv::Mat position) {
   tf::Transform grasp_tf = TransformFromMat (position);
+  current_frame_time_ = ros::Time::now();
   tf::Stamped<tf::Pose> grasp_tf_pose(grasp_tf, current_frame_time_, map_frame_id_param_);
   geometry_msgs::PoseStamped pose_msg;
   tf::poseStampedTFToMsg (grasp_tf_pose, pose_msg);
@@ -206,3 +208,61 @@ bool Node::SaveMapSrv (orb_slam2_ros::SaveMap::Request &req, orb_slam2_ros::Save
 
   return res.success;
 }
+
+cv::Mat Node::TransformFromQuat (geometry_msgs::Quaternion Quat){
+	
+	float qx,qy,qz,qw,qx2,qy2,qz2;
+	qx = Quat.x;
+	qy = Quat.y;
+	qz = Quat.z;
+	qw = Quat.w;
+  qx2=qx*qx;
+  qy2=qy*qy;
+	qz2=qz*qz;
+	
+	float RotationMatrix[9]= {1 - (2*qy2)-(2*qz2) , 2*qx*qy - 2*qz*qw , 2*qx*qz + 2*qy*qw,
+														2*qx*qy + 2*qz*qw   , 1 - 2*qx2 - 2*qz2 , 2*qy*qz - 2*qx*qw,
+              							2*qx*qz - 2*qy*qw   , 2*qy*qz + 2*qx*qw , 1 - 2*qx2 - 2*qy2};
+	std::cout<<"DEBUG Node.cc ln 226 RotationMatrix= ";
+	std::cout<<RotationMatrix<<std::endl;
+
+	cv::Mat RotationCV = cv::Mat(3,3,CV_32F,RotationMatrix); 
+	std::cout<<"RotationCV = ";
+	std::cout<< RotationCV <<std::endl;
+	std::cout << " x y z w = ";
+	std::cout << qx << " " << qy << " " << qz << " " << qw <<std::endl;
+
+	float ROSToOrb[9] = {0, -1,  0,
+											 0,  0, -1,
+                       1,  0,  0};
+
+  cv::Mat ROSToOrbCV = cv::Mat(3,3,CV_32F,ROSToOrb); 
+	
+	cv::Mat RotationCVOrb = ROSToOrbCV * RotationCV ;
+  cv::Mat RotationCVorbTrans = RotationCVOrb.t();
+	cv::Mat RotationCVRosOrb = ROSToOrbCV * RotationCVorbTrans ;
+  std::cout<<RotationCVRosOrb<<std::endl; 
+	return RotationCVRosOrb;
+}
+
+cv::Mat Node::IMURotation(cv::Mat IMUR, cv::Mat CurrentPose){
+
+	cv::Mat IntegratedPoseMat = cv::Mat(4,4,CV_32F);
+	std::cout<<"DEBUG Node.cc ln 235 IMUR = ";
+  std::cout<<IMUR<<std::endl;
+	std::cout<<"CurrentPose = ";
+  std::cout<<CurrentPose<<std::endl;
+	//IntegratedPoseMat(cv::Range(0,3),cv::Range(0,3)) = IMUR.clone();
+  IMUR.copyTo(IntegratedPoseMat(cv::Rect(0,0,3,3)));
+  std::cout<<"IntegratedPoseMat = ";
+  std::cout<<IntegratedPoseMat<<std::endl;
+  CurrentPose.col(3).copyTo(IntegratedPoseMat.col(3));
+	
+
+	return IntegratedPoseMat;
+
+}
+
+
+
+
